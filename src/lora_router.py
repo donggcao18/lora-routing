@@ -20,10 +20,7 @@ class LoRABlock:
     model: Any  # PEFT model with LoRA adapter
     key_vector: np.ndarray  # Representative embedding for similarity checking
     task_prototypes: List[TaskPrototype]  # All tasks assigned to this block
-    creation_time: str
     usage_count: int = 0
-    last_used: str = None
-
 
 class LoRARouter:
     
@@ -31,14 +28,11 @@ class LoRARouter:
                  base_model,
                  prototype_extractor: TaskPrototypeExtractor,
                  similarity_threshold: float = 0.7,
-                 max_blocks: int = 10,
                  lora_config: Optional[LoraConfig] = None):
 
         self.base_model = base_model
         self.prototype_extractor = prototype_extractor
-        self.similarity_threshold = similarity_threshold
-        self.max_blocks = max_blocks
-        
+        self.similarity_threshold = similarity_threshold        
         # LoRA configuration
         if lora_config is None:
             self.lora_config = LoraConfig(
@@ -62,7 +56,7 @@ class LoRARouter:
         self.reuse_count = 0
         self.new_block_count = 0
         
-        logger.info(f"LoRA Router initialized with threshold={similarity_threshold}, max_blocks={max_blocks}")
+        logger.info(f"LoRA Router initialized with threshold={similarity_threshold}")
         logger.info("Sequential task routing: Each task will be routed to best matching block or create new block")
     
     def _generate_block_id(self) -> str:
@@ -72,10 +66,6 @@ class LoRARouter:
         return block_id
     
     def _create_lora_block(self, task_prototype: TaskPrototype) -> LoRABlock:
-        """Create a new LoRA block with first task prototype"""
-        if len(self.lora_blocks) >= self.max_blocks:
-            # Remove least recently used block
-            self._evict_lru_block()
         
         block_id = self._generate_block_id()
         
@@ -86,7 +76,6 @@ class LoRARouter:
             model=peft_model,
             key_vector=key_vector,
             task_prototypes=[task_prototype],
-            creation_time=datetime.now().isoformat(),
             usage_count=1
         )
         
@@ -97,22 +86,6 @@ class LoRARouter:
         logger.info(f"Created new LoRA block {block_id} for task: {task_prototype.task_id}")
         return lora_block
     
-    def _evict_lru_block(self):
-        """Evict least recently used block when maximum blocks reached"""
-        if not self.lora_blocks:
-            return
-        
-        # Find LRU block (lowest usage count, oldest if tied)
-        lru_block_id = min(
-            self.lora_blocks.keys(),
-            key=lambda bid: (
-                self.lora_blocks[bid].usage_count,
-                self.lora_blocks[bid].creation_time
-            )
-        )
-        
-        evicted_block = self.lora_blocks.pop(lru_block_id)
-        logger.info(f"Evicted LoRA block {lru_block_id} (usage: {evicted_block.usage_count})")
     
     def _find_best_matching_block(self, task_prototype: TaskPrototype) -> Tuple[Optional[str], float]:
         """Find block with highest similarity to task prototype using key vectors"""
@@ -147,7 +120,6 @@ class LoRARouter:
         
         # Update usage
         block.usage_count += 1
-        block.last_used = datetime.now().isoformat()
         
         logger.info(f"Updated LoRA block {block.block_id} with new task: {task_prototype.task_id}. "
                    f"Now handles {len(block.task_prototypes)} tasks.")
@@ -191,7 +163,6 @@ class LoRARouter:
             
             # Update usage
             new_block.usage_count = 1
-            new_block.last_used = datetime.now().isoformat()
             
             logger.info(f"Created new block {selected_block_id} (best similarity: {best_similarity:.3f})")
         
@@ -227,8 +198,6 @@ class LoRARouter:
             'tasks': [tp.task_id for tp in block.task_prototypes],
             'task_count': len(block.task_prototypes),
             'usage_count': block.usage_count,
-            'creation_time': block.creation_time,
-            'last_used': block.last_used,
             'key_vector_shape': block.key_vector.shape if block.key_vector is not None else None
         }
     
@@ -262,8 +231,6 @@ class LoRARouter:
                 'tasks': tasks,
                 'task_count': len(block.task_prototypes),
                 'usage_count': block.usage_count,
-                'creation_time': block.creation_time,
-                'last_used': block.last_used
             }
         
         return {
@@ -272,7 +239,6 @@ class LoRARouter:
             'new_blocks_created': self.new_block_count,
             'reuse_rate': reuse_rate,
             'active_blocks': len(self.lora_blocks),
-            'max_blocks': self.max_blocks,
             'similarity_threshold': self.similarity_threshold,
             'language_stats': language_stats,
             'block_stats': block_stats
@@ -290,7 +256,7 @@ class LoRARouter:
         print(f"Blocks reused: {stats['reuse_count']}")
         print(f"New blocks created: {stats['new_blocks_created']}")
         print(f"Reuse rate: {stats['reuse_rate']:.1%}")
-        print(f"Active blocks: {stats['active_blocks']}/{stats['max_blocks']}")
+        print(f"Active blocks: {stats['active_blocks']}")
         print(f"Similarity threshold: {stats['similarity_threshold']}")
         
         print(f"\nLanguage Distribution:")
@@ -335,7 +301,6 @@ class LoRARouter:
         # Reset block usage counts
         for block in self.lora_blocks.values():
             block.usage_count = 0
-            block.last_used = None
         
         logger.info("Routing statistics reset")
 
@@ -360,7 +325,6 @@ if __name__ == "__main__":
             base_model=mock_model,
             prototype_extractor=prototype_extractor,
             similarity_threshold=0.6,
-            max_blocks=3
         )
         
         # Sample tasks
