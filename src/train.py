@@ -44,14 +44,23 @@ class LoRATrainingPipeline:
                  model_name: str = "t5-small",
                  languages: List[str] = ['python', 'java', 'c', 'rust'],
                  similarity_threshold: float = 0.6,
-                 max_lora_blocks: int = 8,
-                 output_dir: str = "./lora_routing_outputs"):
- 
+                 output_dir: str = "lora_routing_outputs",
+                 sample_size_per_task: int = 300,
+                 num_epochs: int = 3,
+                 batch_size: int = 16,
+                 learning_rate: float = 5e-5,
+                 max_training_data_per_task: int = 1000):
+
         self.model_name = model_name
         self.languages = languages
         self.similarity_threshold = similarity_threshold
-        self.max_lora_blocks = max_lora_blocks
         self.output_dir = output_dir
+
+        self.sample_size_per_task = sample_size_per_task
+        self.num_epochs = num_epochs
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
+        self.max_training_data_per_task = max_training_data_per_task
         
         # Create output directory
         os.makedirs(output_dir, exist_ok=True)
@@ -75,7 +84,6 @@ class LoRATrainingPipeline:
         
         # Print GPU info if available
         if torch.cuda.is_available():
-            gpu_count = torch.cuda.device_count()
             current_gpu = torch.cuda.current_device()
             gpu_name = torch.cuda.get_device_name(current_gpu)
             gpu_memory = torch.cuda.get_device_properties(current_gpu).total_memory / 1024**3
@@ -83,12 +91,6 @@ class LoRATrainingPipeline:
         else:
             logger.info("No GPU available, using CPU")
     
-    def check_gpu_memory(self):
-        """Check GPU memory usage"""
-        if torch.cuda.is_available():
-            allocated = torch.cuda.memory_allocated() / 1024**3
-            reserved = torch.cuda.memory_reserved() / 1024**3
-            logger.info(f"GPU Memory - Allocated: {allocated:.2f}GB, Reserved: {reserved:.2f}GB")
     
     def setup_base_model(self):
         """Load and setup the base model and tokenizer"""
@@ -161,8 +163,8 @@ class LoRATrainingPipeline:
         # Initialize prototype extractor
         self.prototype_extractor = TaskPrototypeExtractor(
             embedding_model="microsoft/codebert-base",
-            max_sample_size=50,
-            min_sample_size=10
+            max_sample_size=1000,
+            min_sample_size=100
         )
         
         # Create LoRA configuration
@@ -180,13 +182,12 @@ class LoRATrainingPipeline:
             base_model=self.base_model,
             prototype_extractor=self.prototype_extractor,
             similarity_threshold=self.similarity_threshold,
-            max_blocks=self.max_lora_blocks,
             lora_config=lora_config
         )
         
         logger.info(f"Prototype extractor and LoRA router initialized on {self.device}")
     
-    def process_and_train_task(self, language: str, sample_size: int = 300):
+    def process_and_train_task(self, language: str):
         """Process a single task (language) and train the assigned block"""
         logger.info(f"Processing task: {language}")
         
@@ -203,7 +204,7 @@ class LoRATrainingPipeline:
         logger.info(f"Dataset size for {language}: {len(dataset)} examples")
         
         # Sample data for prototype extraction
-        actual_sample_size = min(sample_size, len(dataset))
+        actual_sample_size = min(self.sample_size_per_task, len(dataset))
         indices = np.random.choice(len(dataset), actual_sample_size, replace=False)
         # Convert numpy indices to Python integers for HuggingFace Dataset compatibility
         sample_data = [dataset[int(i)] for i in indices]
@@ -251,10 +252,7 @@ class LoRATrainingPipeline:
     def train_single_task_on_block(self,
                                    block_id: str,
                                    language: str,
-                                   task_id: str,
-                                   num_epochs: int = 2,
-                                   batch_size: int = 4,
-                                   learning_rate: float = 5e-4):
+                                   task_id: str):
         """Train a specific LoRA block on a single task"""
         logger.info(f"Training block {block_id} on task {task_id} ({language})")
         
@@ -267,6 +265,13 @@ class LoRATrainingPipeline:
         
         task_train_data = self.train_dataset.filter(is_target_language)
         
+        # Limit dataset size if it's larger than max_training_data_per_task
+        if len(task_train_data) > self.max_training_data_per_task:
+            indices = np.random.choice(len(task_train_data), self.max_training_data_per_task, replace=False)
+            indices = sorted([int(i) for i in indices])  # Convert to sorted list of Python ints
+            task_train_data = task_train_data.select(indices)
+            logger.info(f"Limited training data for {language} to {self.max_training_data_per_task} examples (from original {len(self.train_dataset.filter(is_target_language))})")
+        
         if len(task_train_data) == 0:
             logger.warning(f"No training data for {language}, skipping training")
             return None
@@ -276,14 +281,14 @@ class LoRATrainingPipeline:
         # Setup training arguments
         training_args = TrainingArguments(
             output_dir=f"{self.output_dir}/{block_id}_{language}",
-            num_train_epochs=num_epochs,
-            per_device_train_batch_size=batch_size,
+            num_train_epochs=self.num_epochs,
+            per_device_train_batch_size=self.batch_size,
             gradient_accumulation_steps=2,
             warmup_ratio=0.1,
-            learning_rate=learning_rate,
+            learning_rate=self.learning_rate,
             logging_steps=50,
-            save_steps=500,
-            evaluation_strategy="no",
+            save_steps=1000,
+            # evaluation_strategy="no",
             save_strategy="steps",
             load_best_model_at_end=False,
             remove_unused_columns=True,  # This will remove non-model columns like 'language'
@@ -316,9 +321,6 @@ class LoRATrainingPipeline:
         # Train the model
         logger.info(f"Starting training for {block_id} on {language}...")
         
-        # Check GPU memory before training
-        if torch.cuda.is_available():
-            self.check_gpu_memory()
         
         train_result = trainer.train()
         
@@ -333,7 +335,7 @@ class LoRATrainingPipeline:
             'num_examples': len(task_train_data)
         }
     
-    def run_sequential_task_training(self, sample_size_per_task: int = 300):
+    def run_sequential_task_training(self):
         """Process tasks sequentially - each task gets routed and trained individually"""
         logger.info("🔄 Starting sequential task-based training")
         
@@ -345,7 +347,7 @@ class LoRATrainingPipeline:
             logger.info(f"{'='*50}")
             
             # Process this single task
-            result = self.process_and_train_task(language, sample_size_per_task)
+            result = self.process_and_train_task(language)
             
             if result:
                 task_results.append(result)
@@ -365,11 +367,7 @@ class LoRATrainingPipeline:
         
         return task_results
     
-    def run_complete_pipeline(self,
-                            sample_size_per_task: int = 300,
-                            num_epochs: int = 2,
-                            batch_size: int = 4,
-                            learning_rate: float = 5e-4):
+    def run_complete_pipeline(self):
         """Run the complete sequential task training pipeline"""
         logger.info("🚀 Starting Sequential LoRA Task Routing Pipeline")
         
@@ -384,7 +382,7 @@ class LoRATrainingPipeline:
             self.setup_prototype_extractor_and_router()
             
             # Step 4: Process tasks sequentially
-            task_results = self.run_sequential_task_training(sample_size_per_task)
+            task_results = self.run_sequential_task_training()
             
             # Step 5: Save results
             self.save_experiment_results(task_results)
@@ -408,7 +406,6 @@ class LoRATrainingPipeline:
                 'model_name': self.model_name,
                 'languages': self.languages,
                 'similarity_threshold': self.similarity_threshold,
-                'max_lora_blocks': self.max_lora_blocks,
                 'pipeline_type': 'sequential_task_routing'
             },
             'task_results': task_results,
@@ -471,14 +468,14 @@ def main():
     # Configuration
     config = {
         'model_name': 'Salesforce/codet5-small',
-        'languages': ['rust'],  # Multiple tasks to show routing
+        'languages': ['rust', 'ruby'],  # Multiple tasks to show routing
         'similarity_threshold': 0.6,  # Lower threshold for cross-language similarity
-        'max_lora_blocks': 3,
-        'output_dir': './lora_routing_results',
+        'output_dir': 'lora_routing_results',
         'sample_size_per_language': 200,  # Reasonable sample size
         'num_epochs': 1,  # Quick training for testing
-        'batch_size': 4,
-        'learning_rate': 5e-4
+        'batch_size': 16,
+        'learning_rate': 5e-4,
+        'max_training_data_per_task': 100  # Limit training data per task
     }
     
     print("🔧 Sequential LoRA Task Routing Configuration:")
@@ -493,17 +490,16 @@ def main():
         model_name=config['model_name'],
         languages=config['languages'],
         similarity_threshold=config['similarity_threshold'],
-        max_lora_blocks=config['max_lora_blocks'],
-        output_dir=config['output_dir']
-    )
-    
-    # Run the complete pipeline
-    pipeline.run_complete_pipeline(
+        output_dir=config['output_dir'],
         sample_size_per_task=config['sample_size_per_language'],
         num_epochs=config['num_epochs'],
         batch_size=config['batch_size'],
-        learning_rate=config['learning_rate']
+        learning_rate=config['learning_rate'],
+        max_training_data_per_task=config['max_training_data_per_task']
     )
+    
+    # Run the complete pipeline
+    pipeline.run_complete_pipeline()
 
 
 if __name__ == "__main__":
