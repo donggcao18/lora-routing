@@ -173,9 +173,8 @@ class LoRARouter:
             'block_id': selected_block_id,
             'decision': routing_decision,
             'similarity': best_similarity,
-            'language': language,
-            'timestamp': datetime.now().isoformat()
-        }
+            'language': language}
+        
         self.routing_history.append(routing_record)
         
         return selected_block_id, routing_decision, best_similarity, task_prototype
