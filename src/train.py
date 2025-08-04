@@ -20,9 +20,11 @@ import os
 from data_processing import prepare_data_pipeline, load_and_split_datasets
 from architecture import TaskPrototypeExtractor
 from lora_router import LoRARouter
+from evaluation import evaluate_model_on_language
 
 
 os.environ["TRANSFORMERS_NO_TF"] = "1"
+os.environ["WANDB_DISABLED"] = "true"  # Disable wandb completely
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -293,7 +295,7 @@ class LoRATrainingPipeline:
             load_best_model_at_end=False,
             remove_unused_columns=True,  # This will remove non-model columns like 'language'
             dataloader_pin_memory=False,
-            report_to=None,
+            report_to=[],  # Empty list disables all external loggers but keeps local logging
             # Performance optimizations
             fp16=torch.cuda.is_available(),  # Use mixed precision if CUDA available
             dataloader_num_workers=2 if torch.cuda.is_available() else 0,
@@ -329,11 +331,59 @@ class LoRATrainingPipeline:
         
         logger.info(f"Training completed for {block_id} on {language}. Loss: {train_result.training_loss:.4f}")
         
+        # Evaluate the trained model on validation data
+        eval_result = self.evaluate_task_performance(model, language, block_id)
+        
         return {
             'success': True,
             'final_loss': train_result.training_loss,
-            'num_examples': len(task_train_data)
+            'num_examples': len(task_train_data),
+            'evaluation': eval_result
         }
+    
+    def evaluate_task_performance(self, 
+                                  model, 
+                                  language: str, 
+                                  block_id: str):
+        """Evaluate the trained model on validation data for the specific language"""
+        logger.info(f"Evaluating {block_id} on {language} validation data...")
+        
+        # Prepare validation data for this specific language only
+        def is_target_language(example):
+            return example.get('language').lower() == language.lower()
+        
+        # Filter test dataset for this language
+        eval_data = self.test_dataset.filter(is_target_language)
+        
+        if len(eval_data) == 0:
+            logger.warning(f"No evaluation data available for {language}")
+            return {
+                'language': language,
+                'num_examples': 0,
+                'bleu': 0.0,
+                'error': 'No evaluation data available'
+            }
+        
+        # Limit evaluation data size to avoid long evaluation times
+        max_eval_examples = 200  # Adjust as needed
+        if len(eval_data) > max_eval_examples:
+            indices = np.random.choice(len(eval_data), max_eval_examples, replace=False)
+            indices = sorted([int(i) for i in indices])
+            eval_data = eval_data.select(indices)
+            logger.info(f"Limited evaluation data for {language} to {max_eval_examples} examples")
+        
+        # Run evaluation
+        eval_result = evaluate_model_on_language(
+            model=model,
+            tokenizer=self.tokenizer,
+            eval_dataset=eval_data,
+            language=language,
+            device=str(self.device)
+        )
+        
+        logger.info(f"Evaluation completed for {language}: BLEU = {eval_result.get('bleu', 0.0):.4f}")
+        
+        return eval_result
     
     def run_sequential_task_training(self):
         """Process tasks sequentially - each task gets routed and trained individually"""
@@ -360,6 +410,10 @@ class LoRATrainingPipeline:
                     logger.info(f"   Similarity: {result['similarity']:.3f}")
                     if result['training_result']:
                         logger.info(f"   Training Loss: {result['training_result']['final_loss']:.4f}")
+                        if 'evaluation' in result['training_result']:
+                            eval_result = result['training_result']['evaluation']
+                            logger.info(f"   Evaluation BLEU: {eval_result.get('bleu', 0.0):.4f}")
+                            logger.info(f"   Evaluation Examples: {eval_result.get('num_examples', 0)}")
                 else:
                     logger.error(f"Task {language} failed: {result['error']}")
             else:
@@ -438,11 +492,22 @@ class LoRATrainingPipeline:
                 successful_tasks += 1
                 training_success = result.get('training_result', {}).get('success', False)
                 loss = result.get('training_result', {}).get('final_loss', 'N/A')
+                
+                # Get evaluation metrics
+                eval_result = result.get('training_result', {}).get('evaluation', {})
+                bleu_score = eval_result.get('bleu', 'N/A')
+                eval_examples = eval_result.get('num_examples', 0)
+                
                 print(f" {result['language']}: Block {result['block_id']}, "
                       f"Routing: {result['routing_decision']}, "
                       f"Similarity: {result['similarity']:.3f}, "
                       f"Training: {'✓' if training_success else '✗'}, "
                       f"Loss: {loss:.4f}" if isinstance(loss, float) else f"Loss: {loss}")
+                
+                if isinstance(bleu_score, float):
+                    print(f"   Evaluation: BLEU {bleu_score:.4f} ({eval_examples} examples)")
+                elif bleu_score != 'N/A':
+                    print(f"   Evaluation: BLEU {bleu_score} ({eval_examples} examples)")
             else:
                 print(f"  ❌ {result['language']}: Error - {result['error']}")
         
@@ -473,9 +538,10 @@ def main():
         'output_dir': 'lora_routing_results',
         'sample_size_per_language': 200,  # Reasonable sample size
         'num_epochs': 1,  # Quick training for testing
-        'batch_size': 16,
+        'batch_size': 8,
         'learning_rate': 5e-4,
-        'max_training_data_per_task': 100  # Limit training data per task
+        'max_training_data_per_task': 100,  # Limit training data per task
+        'max_evaluation_data_per_task': 100  # Limit evaluation data per task
     }
     
     print("🔧 Sequential LoRA Task Routing Configuration:")
