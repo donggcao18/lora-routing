@@ -10,10 +10,9 @@ import torch
 import sys
 
 # from peft.utils import WEIGHTS_NAME, set_peft_model_state_dict
-from transformers.trainer import Trainer
+from llava.train.transformers.trainer import Trainer
 
-# from ..model import *
-sys.path.append('~/CoIN/')
+from ..model import *
 
 from CoIN.peft import  TaskType, get_peft_model, LoraConfig, WEIGHTS_NAME, set_peft_model_state_dict
 
