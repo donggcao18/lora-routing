@@ -174,6 +174,25 @@ class LoRATrainingPipeline:
         logger.info(f"Training LoRA on task: {task_name}")
         
         # Training arguments
+        # training_args = TrainingArguments(
+        #     output_dir=f"{self.output_dir}/lora_checkpoints/{task_name}",
+        #     num_train_epochs=self.num_epochs,
+        #     per_device_train_batch_size=self.batch_size,
+        #     per_device_eval_batch_size=self.batch_size,
+        #     warmup_steps=100,
+        #     weight_decay=0.01,
+        #     logging_dir=f"{self.output_dir}/logs/{task_name}",
+        #     logging_steps=50,
+        #     save_strategy="epoch",
+        #     evaluation_strategy="epoch",
+        #     load_best_model_at_end=True,
+        #     metric_for_best_model="eval_loss",
+        #     greater_is_better=False,
+        #     report_to=[],  # Disable wandb
+        #     gradient_accumulation_steps=self.gradient_accumulation_steps,
+        #     dataloader_pin_memory=False,
+        #     learning_rate=self.learning_rate,
+        # )
         training_args = TrainingArguments(
             output_dir=f"{self.output_dir}/lora_checkpoints/{task_name}",
             num_train_epochs=self.num_epochs,
@@ -185,7 +204,7 @@ class LoRATrainingPipeline:
             logging_steps=50,
             save_strategy="no",
             evaluation_strategy="epoch",
-            load_best_model_at_end=True,
+            load_best_model_at_end=False,
             metric_for_best_model="eval_loss",
             greater_is_better=False,
             report_to=[],  # Disable wandb
