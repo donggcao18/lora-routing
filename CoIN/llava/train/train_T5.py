@@ -57,7 +57,7 @@ class LoRATrainingPipeline:
                  output_dir: str = "data",
                  input_dir: str = "lora_routing_results",
                  num_epochs: int = 1,
-                 batch_size: int = 8,
+                 batch_size: int = 4,
                  gradient_accumulation_steps: int = 2,
                  learning_rate: float = 3e-4,
                  repetition_penalty: float = 1.2,
