@@ -46,8 +46,7 @@ from .tuners import (
     LoraModel,
     PrefixEncoder,
     PromptEmbedding,
-    PromptEncoder,
-    CoINMOELoraModel,
+    PromptEncoder
 )
 from .utils import (
     SAFETENSORS_WEIGHTS_NAME,
@@ -75,9 +74,7 @@ PEFT_TYPE_TO_MODEL_MAPPING = {
     PeftType.PREFIX_TUNING: PrefixEncoder,
     PeftType.ADALORA: AdaLoraModel,
     PeftType.ADAPTION_PROMPT: AdaptionPromptModel,
-    PeftType.IA3: IA3Model,
-    PeftType.MOE_LORA_CoIN: CoINMOELoraModel,
-}
+    PeftType.IA3: IA3Model}
 
 
 class PeftModel(PushToHubMixin, torch.nn.Module):

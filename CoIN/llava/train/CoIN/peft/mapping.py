@@ -35,7 +35,6 @@ from .tuners import (
     PrefixTuningConfig,
     PromptEncoderConfig,
     PromptTuningConfig,
-    CoINMOELoraConfig,
 )
 from .utils import PromptLearningConfig, _prepare_prompt_learning_config
 
@@ -63,9 +62,7 @@ PEFT_TYPE_TO_CONFIG_MAPPING = {
     "P_TUNING": PromptEncoderConfig,
     "LORA": LoraConfig,
     "ADALORA": AdaLoraConfig,
-    "IA3": IA3Config,
-    "MOE_LORA_CoIN": CoINMOELoraConfig,
-}
+    "IA3": IA3Config}
 
 
 def get_peft_config(config_dict: Dict[str, Any]):
