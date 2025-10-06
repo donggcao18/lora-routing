@@ -83,6 +83,8 @@ class LoRATrainingPipeline:
         # Initialize components
         self.base_model = None
         self.tokenizer = None
+        self.lora_model = None  # Single LoRA model for all tasks
+        self.trainer = None     # Single trainer for all tasks
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"Using device: {self.device}")
 
@@ -167,42 +169,22 @@ class LoRATrainingPipeline:
         logger.info("LoRA model setup completed")
         return self.lora_model
 
-
+    def setup_trainer(self):
+        """Create a single trainer for sequential training"""
+        if self.lora_model is None:
+            self.setup_lora_model()
         
-    def train_on_task(self, task_name: str, train_dataset, val_dataset):
-        """Train LoRA on a specific task"""
-        logger.info(f"Training LoRA on task: {task_name}")
-        
-        # Training arguments
-        # training_args = TrainingArguments(
-        #     output_dir=f"{self.output_dir}/lora_checkpoints/{task_name}",
-        #     num_train_epochs=self.num_epochs,
-        #     per_device_train_batch_size=self.batch_size,
-        #     per_device_eval_batch_size=self.batch_size,
-        #     warmup_steps=100,
-        #     weight_decay=0.01,
-        #     logging_dir=f"{self.output_dir}/logs/{task_name}",
-        #     logging_steps=50,
-        #     save_strategy="epoch",
-        #     evaluation_strategy="epoch",
-        #     load_best_model_at_end=True,
-        #     metric_for_best_model="eval_loss",
-        #     greater_is_better=False,
-        #     report_to=[],  # Disable wandb
-        #     gradient_accumulation_steps=self.gradient_accumulation_steps,
-        #     dataloader_pin_memory=False,
-        #     learning_rate=self.learning_rate,
-        # )
+        # Training arguments for sequential learning
         training_args = TrainingArguments(
-            output_dir=f"{self.output_dir}/lora_checkpoints/{task_name}",
+            output_dir=f"{self.output_dir}/lora_checkpoints/sequential_training",
             num_train_epochs=self.num_epochs,
             per_device_train_batch_size=self.batch_size,
             per_device_eval_batch_size=self.batch_size,
             warmup_steps=100,
             weight_decay=0.01,
-            logging_dir=f"{self.output_dir}/logs/{task_name}",
+            logging_dir=f"{self.output_dir}/logs/sequential_training",
             logging_steps=50,
-            save_strategy="no",
+            save_strategy="epoch",
             evaluation_strategy="epoch",
             load_best_model_at_end=False,
             metric_for_best_model="eval_loss",
@@ -219,29 +201,46 @@ class LoRATrainingPipeline:
             model=self.lora_model,
             padding="max_length",
             max_length=512, 
-            # truncation=True, 
             return_tensors="pt"
         )
         
-        # Trainer
-        trainer = Trainer(
+        # Create the trainer
+        self.trainer = Trainer(
             model=self.lora_model,
             args=training_args,
-            train_dataset=train_dataset,
-            eval_dataset=val_dataset,
             tokenizer=self.tokenizer,
             data_collator=data_collator,
         )
         
-        # Train
-        logger.info(f"Starting training for {task_name}...")
-        trainer.train()
+        logger.info("Single trainer created for sequential training")
+
+    
         
-        logger.info(f"Training completed for {task_name}")
+    def train_on_task(self, task_name: str, train_dataset, val_dataset):
+        """Train LoRA on a specific task using the single persistent trainer"""
+        logger.info(f"Training LoRA on task: {task_name}")
         
-        del trainer
-        torch.cuda.empty_cache()
-        torch.cuda.ipc_collect()
+        # Ensure trainer is set up
+        if self.trainer is None:
+            self.setup_trainer()
+        
+        # Update the trainer's datasets for this task
+        self.trainer.train_dataset = train_dataset
+        self.trainer.eval_dataset = val_dataset
+        
+        # Train - this continues training the same LoRA parameters
+        logger.info(f"Starting continual training for {task_name}...")
+        logger.info(f"LoRA model will accumulate knowledge from this task")
+        
+        # Reset the trainer's state for new task (but keep the model)
+        self.trainer.state.epoch = 0
+        self.trainer.state.global_step = 0
+        
+        self.trainer.train()
+        
+        logger.info(f"Training completed for {task_name}. LoRA parameters updated.")
+        
+        
 
 
     def evaluate_on_all_tasks(self, tasks_data_dict: Dict) -> Dict:
@@ -293,6 +292,7 @@ class LoRATrainingPipeline:
         self.task_list = self.task_sequence  # Set task list for data loading
         self.setup_base_model()
         self.setup_lora_model()
+        self.setup_trainer()  # Create single trainer for all tasks
         
         # Get all task data
         tasks_data_dict = self.get_tasks_data_dict()
@@ -304,18 +304,22 @@ class LoRATrainingPipeline:
             'final_evaluation': {}
         }
         
-        # Sequential training loop
+        # Sequential training loop with single LoRA model
+        logger.info("Using single LoRA model for continual learning across all tasks")
+        
         for step, task_name in enumerate(self.task_sequence):
             logger.info(f"\n{'='*50}")
-            logger.info(f"Step {step + 1}/{len(self.task_sequence)}: Training on {task_name}")
+            logger.info(f"Step {step + 1}/{len(self.task_sequence)}: Continual training on {task_name}")
+            logger.info(f"Same LoRA parameters will be updated with knowledge from {task_name}")
             logger.info(f"{'='*50}")
             
-            # Train on current task
+            # Train on current task (continues from previous task's LoRA state)
             self.train_on_task(
                 task_name=task_name,
                 train_dataset=tasks_data_dict[task_name]['train'],
                 val_dataset=tasks_data_dict[task_name]['validation']
             )
+            
             
             # Evaluate on all tasks after training on current task
             logger.info(f"\nEvaluating after training on {task_name}...")
@@ -346,8 +350,10 @@ class LoRATrainingPipeline:
         # Save final results
         self._save_experiment_results(experiment_results, "sequential_training_final.json")
         
+        # Final cleanup
         
         return experiment_results
+        
 
     def _print_evaluation_summary(self, current_task: str, results: Dict):
         """Print a nice summary of evaluation results"""
