@@ -14,7 +14,7 @@ from llava.train.transformers.trainer import Trainer
 
 from ..model import *
 
-from CoIN.peft import  TaskType, get_peft_model, LoraConfig, WEIGHTS_NAME, set_peft_model_state_dict
+from llava.train.CoIN.peft import  TaskType, get_peft_model, LoraConfig, WEIGHTS_NAME, set_peft_model_state_dict
 
 from transformers import (
     AutoModelForSeq2SeqLM, 
@@ -25,8 +25,8 @@ from transformers import (
 import logging
 from datetime import datetime
 
-from eval import evaluate_model_on_task
-from data.cl_dataset import T5Dataset
+from llava.train.eval import evaluate_model_on_task
+from llava.train.data.cl_dataset import T5Dataset
 
 os.environ["TRANSFORMERS_NO_TF"] = "1"
 os.environ["WANDB_DISABLED"] = "true"  # Disable wandb completely
