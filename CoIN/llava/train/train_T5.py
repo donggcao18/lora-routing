@@ -416,7 +416,7 @@ if __name__ == "__main__":
         model_name="Salesforce/codet5p-220m",
         output_dir=output_dir,
         input_dir=input_dir,
-        task_sequence=["BFP_java", "CodeSearchNet_java"]
+        task_sequence=["BFP_java", "CodeTrans_java_to_csharp"]
     )
     
 
