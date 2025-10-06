@@ -175,6 +175,26 @@ class LoRATrainingPipeline:
             self.setup_lora_model()
         
         # Training arguments for sequential learning
+        # training_args = TrainingArguments(
+        #     output_dir=f"{self.output_dir}/lora_checkpoints/sequential_training",
+        #     num_train_epochs=self.num_epochs,
+        #     per_device_train_batch_size=self.batch_size,
+        #     per_device_eval_batch_size=self.batch_size,
+        #     warmup_steps=100,
+        #     weight_decay=0.01,
+        #     logging_dir=f"{self.output_dir}/logs/sequential_training",
+        #     logging_steps=50,
+        #     save_strategy="epoch",
+        #     evaluation_strategy="epoch",
+        #     load_best_model_at_end=False,
+        #     metric_for_best_model="eval_loss",
+        #     greater_is_better=False,
+        #     report_to=[],  # Disable wandb
+        #     gradient_accumulation_steps=self.gradient_accumulation_steps,
+        #     dataloader_pin_memory=False,
+        #     learning_rate=self.learning_rate,
+        # )
+
         training_args = TrainingArguments(
             output_dir=f"{self.output_dir}/lora_checkpoints/sequential_training",
             num_train_epochs=self.num_epochs,
@@ -184,10 +204,9 @@ class LoRATrainingPipeline:
             weight_decay=0.01,
             logging_dir=f"{self.output_dir}/logs/sequential_training",
             logging_steps=50,
-            save_strategy="epoch",
+            save_strategy="no",
             evaluation_strategy="epoch",
             load_best_model_at_end=False,
-            metric_for_best_model="eval_loss",
             greater_is_better=False,
             report_to=[],  # Disable wandb
             gradient_accumulation_steps=self.gradient_accumulation_steps,
