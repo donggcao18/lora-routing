@@ -183,7 +183,7 @@ class LoRATrainingPipeline:
             weight_decay=0.01,
             logging_dir=f"{self.output_dir}/logs/{task_name}",
             logging_steps=50,
-            save_strategy="epoch",
+            save_strategy="no",
             evaluation_strategy="epoch",
             load_best_model_at_end=True,
             metric_for_best_model="eval_loss",
