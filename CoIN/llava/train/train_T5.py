@@ -33,8 +33,8 @@ os.environ["TRANSFORMERS_NO_TF"] = "1"
 os.environ["WANDB_DISABLED"] = "true"  # Disable wandb completely
 
 #IO control
-input_dir = "./data"
-output_dir = "./results"
+input_dir = "/kaggle/input/codetask-extend/data"
+output_dir = "/kaggle/working/"
 
 log_filename = f"{output_dir}/training_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
