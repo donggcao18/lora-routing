@@ -56,16 +56,16 @@ class LoRATrainingPipeline:
                  model_name: str = "t5-small",
                  output_dir: str = "data",
                  input_dir: str = "lora_routing_results",
-                 num_epochs: int = 3,
+                 num_epochs: int = 1,
                  batch_size: int = 4,
                  gradient_accumulation_steps: int = 2,
                  learning_rate: float = 3e-4,
                  repetition_penalty: float = 1.2,
                  task_sequence: List[str] = None,
                  max_length: int = 512,
-                 max_train_size: int = 15000,
-                 max_val_size: int = 150,
-                 max_test_size: int = 150):
+                 max_train_size: int = 150,
+                 max_val_size: int = 15,
+                 max_test_size: int = 15):
 
         self.model_name = model_name
         self.output_dir = output_dir
