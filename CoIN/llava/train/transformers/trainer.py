@@ -190,8 +190,8 @@ if is_safetensors_available():
     import safetensors.torch
 
 
-if is_peft_available():
-    from peft import PeftModel
+# if is_peft_available():
+#     from peft import PeftModel
 
 
 if is_accelerate_available():
