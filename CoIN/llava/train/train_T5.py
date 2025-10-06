@@ -63,7 +63,7 @@ class LoRATrainingPipeline:
                  repetition_penalty: float = 1.2,
                  task_sequence: List[str] = None,
                  max_length: int = 512,
-                 max_train_size: int = 10,
+                 max_train_size: int = 11,
                  max_val_size: int = 15,
                  max_test_size: int = 15):
 
