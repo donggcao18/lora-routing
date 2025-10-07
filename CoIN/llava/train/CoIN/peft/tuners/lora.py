@@ -633,6 +633,7 @@ class LoraModel(torch.nn.Module):
         return self._unload_and_optionally_merge(merge=False)
 
     def ema_update(self, model):
+        print(f"dema {self.dema}")
         for n, p in model.named_parameters():
             if p.requires_grad and self.dema:
                 if n not in self.ema_modules:
@@ -642,7 +643,9 @@ class LoraModel(torch.nn.Module):
                         a = torch.norm(p.data - self.ema_modules[n].data, p=1)  # theta_t - theta_{t-1}^*
                         b = torch.norm(p.grad.data, p=1)  # L'
                         c = torch.norm(p.grad.data - self.p_grad_data[n].data, p=1)  # L''
+                        print("a, b, c:", a, b, c)
                         alpha = float((1 + b) / (a * c) * 2)
+                        print("alpha:", alpha)
                         if 0 < alpha < 1:
                             alpha = alpha
                         else:
