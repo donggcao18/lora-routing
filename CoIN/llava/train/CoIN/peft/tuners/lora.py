@@ -649,9 +649,9 @@ class LoraModel(torch.nn.Module):
                             alpha = 0.01
                             print("EMA update alpha out of range, set to 0.01")
                         self.ema_modules[n].data = self.ema_modules[n].data * (1 - alpha) + p.data * alpha
-                    except:
+                    except Exception as e:
                         self.ema_modules[n].data = self.ema_modules[n].data * 0.99 + p.data * 0.01
-                        print("EMA update exception in {n}")
+                        print("EMA update exception in {n} with exeption {e}".format(n=n, e=e))
                 self.p_grad_data[n] = copy.deepcopy(p.grad)
 
     def ema_replace(self, model):
