@@ -633,27 +633,6 @@ class LoraModel(torch.nn.Module):
         """
         return self._unload_and_optionally_merge(merge=False)
 
-    def ema_update(self, model):
-        for n, p in model.named_parameters():
-            if p.requires_grad and self.dema:
-                if n not in self.ema_modules:
-                    self.ema_modules[n] = copy.deepcopy(p)
-                with torch.no_grad():
-                    try:
-                        a = torch.norm(p.data - self.ema_modules[n].data, p=1)  # theta_t - theta_{t-1}^*
-                        b = torch.norm(p.grad.data, p=1)  # L'
-                        c = torch.norm(p.grad.data - self.p_grad_data[n].data, p=1)  # L''
-                        print("a, b, c:", a, b, c)
-                        alpha = float((1 + b) / (a * c) * 2)
-                        if 0 < alpha < 1:
-                            alpha = alpha
-                        else:
-                            alpha = 0.01
-                        self.ema_modules[n].data = self.ema_modules[n].data * (1 - alpha) + p.data * alpha
-                    except Exception :
-                        self.ema_modules[n].data = self.ema_modules[n].data * 0.99 + p.data * 0.01
-                self.p_grad_data[n] = copy.deepcopy(p.grad)
-
     # def ema_update(self, model):
     #     for n, p in model.named_parameters():
     #         if p.requires_grad and self.dema:
@@ -664,22 +643,43 @@ class LoraModel(torch.nn.Module):
     #                     a = torch.norm(p.data - self.ema_modules[n].data, p=1)  # theta_t - theta_{t-1}^*
     #                     b = torch.norm(p.grad.data, p=1)  # L'
     #                     c = torch.norm(p.grad.data - self.p_grad_data[n].data, p=1)  # L''
-    #                     d = torch.norm(p.data - self.p_data[n].data, p=1)
-                        
     #                     print("a, b, c:", a, b, c)
-    #                     alpha = float((1 + b) * d/ (a * c))
-    #                     print("alpha:", alpha)
+    #                     alpha = float((1 + b) / (a * c) * 2)
     #                     if 0 < alpha < 1:
     #                         alpha = alpha
     #                     else:
     #                         alpha = 0.01
-    #                         print("EMA update alpha out of range, set to 0.01")
     #                     self.ema_modules[n].data = self.ema_modules[n].data * (1 - alpha) + p.data * alpha
-    #                 except Exception as e:
+    #                 except Exception :
     #                     self.ema_modules[n].data = self.ema_modules[n].data * 0.99 + p.data * 0.01
-    #                     print("EMA update exception in {n} with exeption {e}".format(n=n, e=e))
     #             self.p_grad_data[n] = copy.deepcopy(p.grad)
-    #             self.p_data[n] = copy.deepcopy(p)
+
+    def ema_update(self, model):
+        for n, p in model.named_parameters():
+            if p.requires_grad and self.dema:
+                if n not in self.ema_modules:
+                    self.ema_modules[n] = copy.deepcopy(p)
+                with torch.no_grad():
+                    try:
+                        a = torch.norm(p.data - self.ema_modules[n].data, p=1)  # theta_t - theta_{t-1}^*
+                        b = torch.norm(p.grad.data, p=1)  # L'
+                        c = torch.norm(p.grad.data - self.p_grad_data[n].data, p=1)  # L''
+                        d = torch.norm(p.data - self.p_data[n].data, p=1)
+                        
+                        print("a, b, c, d:", a, b, c, d)
+                        alpha = float((1 + b) * d/ (a * c))
+                        print("alpha:", alpha)
+                        if 0 < alpha < 1:
+                            alpha = alpha
+                        else:
+                            alpha = 0.01
+                            print("EMA update alpha out of range, set to 0.01")
+                        self.ema_modules[n].data = self.ema_modules[n].data * (1 - alpha) + p.data * alpha
+                    except Exception as e:
+                        self.ema_modules[n].data = self.ema_modules[n].data * 0.99 + p.data * 0.01
+                        print("EMA update exception in {n} with exeption {e}".format(n=n, e=e))
+                self.p_grad_data[n] = copy.deepcopy(p.grad)
+                self.p_data[n] = copy.deepcopy(p)
 
     def ema_replace(self, model):
         for n, p in model.named_parameters():
