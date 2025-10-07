@@ -647,17 +647,20 @@ class LoraModel(torch.nn.Module):
                             alpha = alpha
                         else:
                             alpha = 0.01
+                            print("EMA update alpha out of range, set to 0.01")
                         self.ema_modules[n].data = self.ema_modules[n].data * (1 - alpha) + p.data * alpha
                     except:
                         self.ema_modules[n].data = self.ema_modules[n].data * 0.99 + p.data * 0.01
+                        print("EMA update exception in {n}")
                 self.p_grad_data[n] = copy.deepcopy(p.grad)
 
     def ema_replace(self, model):
         for n, p in model.named_parameters():
             if p.requires_grad and self.dema:
-                print("Before p", p.data)
+                # print("Before p", p.data)
                 p.data = self.ema_modules[n].data
-                print("After p", p.data)
+                # print("After p", p.data)
+                print("EMA replace")
 
 # Below code is based on https://github.com/microsoft/LoRA/blob/main/loralib/layers.py
 # and modified to work with PyTorch FSDP
