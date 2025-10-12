@@ -152,7 +152,7 @@ class LoRATrainingPipeline:
             lora_dropout=0.1,
             bias="none",
             task_type=TaskType.SEQ_2_SEQ_LM,
-            dema = "False",
+            dema = "True",
         )
         print(f"dema: {lora_config.dema}")
         logger.info("LoRA configuration created")
@@ -209,7 +209,7 @@ class LoRATrainingPipeline:
             evaluation_strategy="epoch",
             load_best_model_at_end=False,
             greater_is_better=False,
-            report_to=[],  # Disable wandb
+            report_to=[], 
             gradient_accumulation_steps=self.gradient_accumulation_steps,
             dataloader_pin_memory=False,
             learning_rate=self.learning_rate,
