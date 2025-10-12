@@ -152,7 +152,7 @@ class LoRATrainingPipeline:
             lora_dropout=0.1,
             bias="none",
             task_type=TaskType.SEQ_2_SEQ_LM,
-            dema = "True",
+            dema = "False",
         )
         logger.info("LoRA configuration created")
         return lora_config
