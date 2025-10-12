@@ -63,9 +63,9 @@ class LoRATrainingPipeline:
                  repetition_penalty: float = 1.2,
                  task_sequence: List[str] = None,
                  max_length: int = 512,
-                 max_train_size: int = 10000,
-                 max_val_size: int = 150,
-                 max_test_size: int = 150):
+                 max_train_size: int = 100000,
+                 max_val_size: int = 10000,
+                 max_test_size: int = 10000):
 
         self.model_name = model_name
         self.output_dir = output_dir
@@ -152,7 +152,7 @@ class LoRATrainingPipeline:
             lora_dropout=0.1,
             bias="none",
             task_type=TaskType.SEQ_2_SEQ_LM,
-            dema = "False",
+            dema = "True",
         )
         logger.info("LoRA configuration created")
         return lora_config
