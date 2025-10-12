@@ -154,6 +154,7 @@ class LoRATrainingPipeline:
             task_type=TaskType.SEQ_2_SEQ_LM,
             dema = "False",
         )
+        print(f"dema: {lora_config.dema}")
         logger.info("LoRA configuration created")
         return lora_config
 
