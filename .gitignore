@@ -1,1 +1,4 @@
 __pycache__/
+GORP/
+prompt-gradient-projection/
+*.json
