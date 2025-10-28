@@ -1,0 +1,49 @@
+python3 --num_gpus=1 src/run_t5_new.py \
+   --do_train \
+   --do_predict \
+   --predict_with_generate \
+   --model_name_or_path Salesforce/codet5p-220m \
+   --data_dir CODETASK_Benchmark \
+   --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
+   --task_config_dir configs/CodeTask/CONCODE \
+   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE \
+   --per_device_train_batch_size 16 \
+   --per_device_eval_batch_size 32 \
+   --gradient_accumulation_steps 2 \
+   --learning_rate 3e-04 \
+   --attn_lr 0.0 \
+   --num_train_epochs 5 \
+   --bf16 \
+   --deepspeed configs/ds_configs/stage2.config \
+   --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
+   --distances_temperature 1.0 \
+   --distances_way L2 \
+   --max_source_length 1024 \
+   --max_target_length 256 \
+   --generation_max_length 256 \
+   --add_task_name False \
+   --add_dataset_name False \
+   --overwrite_output_dir \
+   --overwrite_cache \
+   --lr_scheduler_type constant \
+   --warmup_steps 0 \
+   --logging_strategy steps \
+   --logging_steps 10 \
+   --metric_for_best_model eval_rougeL \
+   --evaluation_strategy steps \
+   --save_strategy steps \
+   --save_total_limit 1 \
+   --lora_r 8 \
+   --lora_alpha 32 \
+   --lora_dropout 0.0 \
+   --load_best_model_at_end \
+   --data_replay_freq -1 \
+   --replay_after_n_epoch 0 \
+   --kl_ratio 1 \
+   --attn_temperature 1 \
+   --trans_hidden_dim 100 \
+   --train_key_weight_top 1 \
+   --test_key_weight_top 1 \
+   --train_key_weight_top_p -1.0 \
+   --test_key_weight_top_p -1.0 \
+   --successor N
