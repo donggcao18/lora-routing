@@ -359,7 +359,7 @@ class CLInstructions(datasets.GeneratorBasedBuilder):
         logger.info(f"Generating tasks from = {path}")
 
         for task in task_config:
-            if task == 'SuperNI':
+            if task == 'SuperNI' or task == "CodeTask":
                 load_func = self.load_SuperNI_dataset
             elif task == "Long_Sequence":
                 load_func = self.load_LongSeq_dataset
@@ -377,7 +377,11 @@ class CLInstructions(datasets.GeneratorBasedBuilder):
 
                 idx = -1
                 instances = []
-                for sample in load_func(ds_path, labels_path, ds_name, sampling_strategy, max_num_instances_per_task,
+                for sample in load_func(ds_path, 
+                                        labels_path, 
+                                        ds_name, 
+                                        sampling_strategy, 
+                                        max_num_instances_per_task,
                                         subset):
                     idx += 1
                     instances.append(sample)

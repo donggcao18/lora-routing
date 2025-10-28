@@ -1,4 +1,8 @@
 __pycache__/
 GORP/
 prompt-gradient-projection/
+CL_Benchmarks/
+
+# Ignore all JSON files
 *.json
+

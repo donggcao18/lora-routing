@@ -19,9 +19,9 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
-   --data_dir CL_Benchmark \
+   --data_dir CODETASK_Benchmark \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/CONCODE \
+   --task_config_dir configs/CodeTask/CONCODE \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
@@ -74,10 +74,10 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --model_name_or_path Salesforce/codet5p-220m \
    --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights \
    --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights \
-   --data_dir CL_Benchmark \
+   --data_dir CODETASK_Benchmark \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/CodeTrans \
+   --task_config_dir configs/CodeTask/CodeTrans \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
@@ -131,10 +131,10 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --model_name_or_path Salesforce/codet5p-220m \
    --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights \
    --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights \
-   --data_dir CL_Benchmark \
+   --data_dir CODETASK_Benchmark \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/CodeSearchNet \
+   --task_config_dir configs/CodeTask/CodeSearchNet \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
@@ -188,10 +188,10 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --model_name_or_path Salesforce/codet5p-220m \
    --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/saved_weights \
    --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/saved_weights \
-   --data_dir CL_Benchmark \
+   --data_dir CODETASK_Benchmark \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/BFP \
+   --task_config_dir configs/CodeTask/BFP \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
@@ -247,10 +247,10 @@ python3 --num_gpus=1 src/run_t5_new_eval.py \
    --model_name_or_path Salesforce/codet5p-220m \
    --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP/saved_weights \
    --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP/saved_weights \
-   --data_dir CL_Benchmark \
+   --data_dir CODETASK_Benchmark \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/task875_emotion_classification \
+   --task_config_dir configs/CodeTask/task875_emotion_classification \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/15-task875_emotion_classification \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 8 \
