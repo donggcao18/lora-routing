@@ -20,9 +20,9 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
    --data_dir CL_Benchmark \
-   --task_order task1572_samsum_summary,task363_sst2_polarity_classification,task1290_xsum_summarization,task181_outcome_extraction,task002_quoref_answer_generation,task1510_evalution_relation_extraction,task639_multi_woz_user_utterance_generation,task1729_personachat_generate_next,task073_commonsenseqa_answer_generation,task1590_diplomacy_text_generation,task748_glucose_reverse_cause_event_detection,task511_reddit_tifu_long_text_summarization,task591_sciq_answer_generation,task1687_sentiment140_classification,task875_emotion_classification \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/task1572_samsum_summary \
-   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary \
+   --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
+   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/CONCODE \
+   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
    --gradient_accumulation_steps 2 \
@@ -64,7 +64,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --test_key_weight_top_p -1.0 \
    --successor N
 
-rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/checkpoint*
+rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/checkpoint*
 
 
 python3 --num_gpus=1 src/run_t5_new.py \
@@ -72,13 +72,13 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
-   --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/saved_weights \
-   --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/saved_weights \
+   --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights \
+   --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights \
    --data_dir CL_Benchmark \
-   --task_order task1572_samsum_summary,task363_sst2_polarity_classification,task1290_xsum_summarization,task181_outcome_extraction,task002_quoref_answer_generation,task1510_evalution_relation_extraction,task639_multi_woz_user_utterance_generation,task1729_personachat_generate_next,task073_commonsenseqa_answer_generation,task1590_diplomacy_text_generation,task748_glucose_reverse_cause_event_detection,task511_reddit_tifu_long_text_summarization,task591_sciq_answer_generation,task1687_sentiment140_classification,task875_emotion_classification \
+   --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/task363_sst2_polarity_classification \
-   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-task363_sst2_polarity_classification \
+   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/CodeTrans \
+   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
    --gradient_accumulation_steps 2 \
@@ -101,7 +101,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --warmup_steps 0 \
    --logging_strategy steps \
    --logging_steps 10 \
-   --metric_for_best_model eval_rougeL_for_task363_sst2_polarity_classification \
+   --metric_for_best_model eval_rougeL_for_CodeTrans \
    --evaluation_strategy steps \
    --save_strategy steps \
    --save_total_limit 1 \
@@ -120,7 +120,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --test_key_weight_top_p -1.0 \
    --successor N
 
-rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-task363_sst2_polarity_classification/checkpoint*
+rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/checkpoint*
 
 
 
@@ -129,13 +129,13 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
-   --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-task363_sst2_polarity_classification/saved_weights \
-   --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-task363_sst2_polarity_classification/saved_weights \
+   --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights \
+   --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights \
    --data_dir CL_Benchmark \
-   --task_order task1572_samsum_summary,task363_sst2_polarity_classification,task1290_xsum_summarization,task181_outcome_extraction,task002_quoref_answer_generation,task1510_evalution_relation_extraction,task639_multi_woz_user_utterance_generation,task1729_personachat_generate_next,task073_commonsenseqa_answer_generation,task1590_diplomacy_text_generation,task748_glucose_reverse_cause_event_detection,task511_reddit_tifu_long_text_summarization,task591_sciq_answer_generation,task1687_sentiment140_classification,task875_emotion_classification \
+   --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/task1290_xsum_summarization \
-   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-task1290_xsum_summarization \
+   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/CodeSearchNet \
+   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
    --gradient_accumulation_steps 2 \
@@ -158,7 +158,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --warmup_steps 0 \
    --logging_strategy steps \
    --logging_steps 10 \
-   --metric_for_best_model eval_rougeL_for_task1290_xsum_summarization \
+   --metric_for_best_model eval_rougeL_for_CodeSearchNet \
    --evaluation_strategy steps \
    --save_strategy steps \
    --save_total_limit 1 \
@@ -177,7 +177,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --test_key_weight_top_p -1.0 \
    --successor N
 
-rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-task1290_xsum_summarization/checkpoint*
+rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/checkpoint*
 
 
 
@@ -186,13 +186,13 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
-   --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-task363_sst2_polarity_classification/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-task1290_xsum_summarization/saved_weights \
-   --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-task363_sst2_polarity_classification/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-task1290_xsum_summarization/saved_weights \
+   --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/saved_weights \
+   --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/saved_weights \
    --data_dir CL_Benchmark \
-   --task_order task1572_samsum_summary,task363_sst2_polarity_classification,task1290_xsum_summarization,task181_outcome_extraction,task002_quoref_answer_generation,task1510_evalution_relation_extraction,task639_multi_woz_user_utterance_generation,task1729_personachat_generate_next,task073_commonsenseqa_answer_generation,task1590_diplomacy_text_generation,task748_glucose_reverse_cause_event_detection,task511_reddit_tifu_long_text_summarization,task591_sciq_answer_generation,task1687_sentiment140_classification,task875_emotion_classification \
+   --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
-   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/task181_outcome_extraction \
-   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-task181_outcome_extraction \
+   --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/BFP \
+   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
    --gradient_accumulation_steps 2 \
@@ -215,7 +215,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --warmup_steps 0 \
    --logging_strategy steps \
    --logging_steps 10 \
-   --metric_for_best_model eval_rougeL_for_task181_outcome_extraction \
+   --metric_for_best_model eval_rougeL_for_BFP \
    --evaluation_strategy steps \
    --save_strategy steps \
    --save_total_limit 1 \
@@ -234,7 +234,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --test_key_weight_top_p -1.0 \
    --successor N
 
-rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-task181_outcome_extraction/checkpoint*
+rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP/checkpoint*
 
 
 
@@ -245,10 +245,10 @@ python3 --num_gpus=1 src/run_t5_new_eval.py \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
-   --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-task363_sst2_polarity_classification/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-task1290_xsum_summarization/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-task181_outcome_extraction/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/5-task002_quoref_answer_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/6-task1510_evalution_relation_extraction/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/7-task639_multi_woz_user_utterance_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/8-task1729_personachat_generate_next/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/9-task073_commonsenseqa_answer_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/10-task1590_diplomacy_text_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/11-task748_glucose_reverse_cause_event_detection/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/12-task511_reddit_tifu_long_text_summarization/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/13-task591_sciq_answer_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/14-task1687_sentiment140_classification/saved_weights \
-   --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-task1572_samsum_summary/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-task363_sst2_polarity_classification/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-task1290_xsum_summarization/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-task181_outcome_extraction/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/5-task002_quoref_answer_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/6-task1510_evalution_relation_extraction/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/7-task639_multi_woz_user_utterance_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/8-task1729_personachat_generate_next/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/9-task073_commonsenseqa_answer_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/10-task1590_diplomacy_text_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/11-task748_glucose_reverse_cause_event_detection/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/12-task511_reddit_tifu_long_text_summarization/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/13-task591_sciq_answer_generation/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/14-task1687_sentiment140_classification/saved_weights \
+   --previous_lora_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP/saved_weights \
+   --previous_lora_distribution_path logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/saved_weights,logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP/saved_weights \
    --data_dir CL_Benchmark \
-   --task_order task1572_samsum_summary,task363_sst2_polarity_classification,task1290_xsum_summarization,task181_outcome_extraction,task002_quoref_answer_generation,task1510_evalution_relation_extraction,task639_multi_woz_user_utterance_generation,task1729_personachat_generate_next,task073_commonsenseqa_answer_generation,task1590_diplomacy_text_generation,task748_glucose_reverse_cause_event_detection,task511_reddit_tifu_long_text_summarization,task591_sciq_answer_generation,task1687_sentiment140_classification,task875_emotion_classification \
+   --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
    --task_config_dir configs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0_configs/task875_emotion_classification \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/15-task875_emotion_classification \
@@ -274,7 +274,7 @@ python3 --num_gpus=1 src/run_t5_new_eval.py \
    --warmup_steps 0 \
    --logging_strategy steps \
    --logging_steps 10 \
-   --metric_for_best_model eval_rougeL_for_task875_emotion_classification \
+   --metric_for_best_model eval_rougeL_for_BFP \
    --evaluation_strategy steps \
    --save_strategy steps \
    --save_total_limit 1 \
