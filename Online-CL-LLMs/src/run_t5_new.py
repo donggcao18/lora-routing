@@ -773,6 +773,7 @@ def main():
                         "Prediction": pred
                     }) + "\n")
         return result
+    
     print(f"-----Gradient checkpointing: {training_args.gradient_checkpointing} -----")
     if training_args.gradient_checkpointing:
         model.gradient_checkpointing_enable()
@@ -782,6 +783,12 @@ def main():
     training_args.eval_steps = 5 * training_args.step_per_epoch
     training_args.save_steps = 5 * training_args.step_per_epoch
 
+    """ 
+    ToDo
+    Adapt Trainer for CL with LoRA
+    1. Change Dataset to CodeTask Bench
+    2. Compute Metrics to bleu
+    """
     trainer = Trainer(
         model=model,
         args=training_args,

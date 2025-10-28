@@ -288,7 +288,13 @@ class CLInstructions(datasets.GeneratorBasedBuilder):
 
             yield example
 
-    def load_SuperNI_dataset(self, dataset_path, labels_path, dataset_name, sampling_strategy, max_num_instances, subset):
+    def load_SuperNI_dataset(self, 
+                             dataset_path, 
+                             labels_path, 
+                             dataset_name, 
+                             sampling_strategy, 
+                             max_num_instances, 
+                             subset):
 
         data = self._load_dataset(dataset_path)
         print(list(data.keys()))
@@ -344,7 +350,11 @@ class CLInstructions(datasets.GeneratorBasedBuilder):
             yield example
 
 
-    def _generate_examples(self, path=None, task_config=None, max_num_instances_per_task=None, subset=None):
+    def _generate_examples(self, 
+                           path=None, 
+                           task_config=None, 
+                           max_num_instances_per_task=None, 
+                           subset=None):
         """Yields examples."""
         logger.info(f"Generating tasks from = {path}")
 
