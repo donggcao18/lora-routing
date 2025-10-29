@@ -1,0 +1,20 @@
+{
+  "CodeTask": [
+    {
+      "sampling strategy": "full",
+      "dataset name": "CodeTrans"
+    },
+    {
+      "sampling strategy": "full",
+      "dataset name": "CodeSearchNet"
+    },
+    {
+      "sampling strategy": "full",
+      "dataset name": "BFP"
+    },
+    {
+      "sampling strategy": "full",
+      "dataset name": "CONCODE"
+    }
+  ]
+}
