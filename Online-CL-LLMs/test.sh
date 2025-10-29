@@ -1,4 +1,4 @@
-python3 --num_gpus=1 src/run_t5_new.py \
+python3 src/run_t5_new.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
