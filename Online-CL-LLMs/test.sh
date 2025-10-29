@@ -3,9 +3,9 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
-   --data_dir CODETASK_Benchmark \
+   --data_dir /kaggle/input/codetask-extend/data \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
-   --task_config_dir configs/CodeTask/CONCODE \
+   --task_config_dir /kaggle/working/lora-routing/Online-CL-LLMs/configs/CodeTask/CONCODE \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE \
    --per_device_train_batch_size 16 \
    --per_device_eval_batch_size 32 \
@@ -14,7 +14,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --attn_lr 0.0 \
    --num_train_epochs 5 \
    --bf16 \
-   --deepspeed configs/ds_configs/stage2.config \
+   --deepspeed /kaggle/working/lora-routing/Online-CL-LLMs/configs/ds_/kaggle/working/lora-routing/Online-CL-LLMs/configs/stage2.config \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
    --distances_way L2 \
