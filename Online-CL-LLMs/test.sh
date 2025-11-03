@@ -1,6 +1,5 @@
 #!/bin/bash
 python3 src/run_t5_new.py \
-   --do_train \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
@@ -8,12 +7,12 @@ python3 src/run_t5_new.py \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --task_config_dir configs/CodeTask/CONCODE \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 32 \
    --per_device_eval_batch_size 32 \
-   --gradient_accumulation_steps 2 \
+   --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
-   --num_train_epochs 5 \
+   --num_train_epochs 3 \
    --bf16 \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
@@ -45,4 +44,7 @@ python3 src/run_t5_new.py \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
    --test_key_weight_top_p -1.0 \
-   --successor N
+   --successor N \
+   --max_train_samples 30000 \
+   --max_eval_samples 500 \
+   --max_predict_samples 500

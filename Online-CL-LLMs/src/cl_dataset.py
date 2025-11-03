@@ -369,6 +369,7 @@ class CLInstructions(datasets.GeneratorBasedBuilder):
             # load dataset
             for dataset in task_config[task]:
                 ds_name = dataset["dataset name"]
+                print(f"Loading {ds_name} dataset...")
                 sampling_strategy = dataset.get("sampling strategy", "random")
                 ds_path = os.path.join(path, task, ds_name, subset + '.json')
                 print(ds_path)

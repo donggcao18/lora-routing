@@ -6,3 +6,4 @@ CL_Benchmarks/
 # Ignore all JSON files
 *.json
 !Online-CL-LLMS/configs/CodeTask/**/*.json
+logs_and_outputs/
