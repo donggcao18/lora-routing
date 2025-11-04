@@ -1,5 +1,4 @@
 python3 src/run_t5_new.py \
-   --do_train \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
@@ -12,7 +11,7 @@ python3 src/run_t5_new.py \
    --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
-   --num_train_epochs 5 \
+   --num_train_epochs 3 \
    --bf16 \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
@@ -44,4 +43,7 @@ python3 src/run_t5_new.py \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
    --test_key_weight_top_p -1.0 \
-   --successor N
+   --successor N \
+   --max_train_samples 30000 \
+   --max_eval_samples 500 \
+   --max_predict_samples 500
