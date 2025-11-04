@@ -14,7 +14,7 @@ export CUDA_DEVICE_ORDER="PCI_BUS_ID"
 export TORCH_DISTRIBUTED_DEBUG=DETAIL
 port=$(shuf -i25000-30000 -n1)  
 
-python3 --num_gpus=1 src/run_t5_new.py \
+python3 src/run_t5_new.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
@@ -23,14 +23,13 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --task_config_dir configs/CodeTask/CONCODE \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 32 \
    --per_device_eval_batch_size 32 \
-   --gradient_accumulation_steps 2 \
+   --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
    --num_train_epochs 5 \
    --bf16 \
-   --deepspeed configs/ds_configs/stage2.config \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
    --distances_way L2 \
@@ -57,7 +56,6 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --replay_after_n_epoch 0 \
    --kl_ratio 1 \
    --attn_temperature 1 \
-   --trans_hidden_dim 100 \
    --train_key_weight_top 1 \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
@@ -67,7 +65,7 @@ python3 --num_gpus=1 src/run_t5_new.py \
 rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/checkpoint*
 
 
-python3 --num_gpus=1 src/run_t5_new.py \
+python3 src/run_t5_new.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
@@ -79,14 +77,13 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --gen_data_dir generated_data/lora_gen_superni_llama \
    --task_config_dir configs/CodeTask/CodeTrans \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 32 \
    --per_device_eval_batch_size 32 \
-   --gradient_accumulation_steps 2 \
+   --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
    --num_train_epochs 5 \
    --bf16 \
-   --deepspeed configs/ds_configs/stage2.config \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
    --distances_way L2 \
@@ -113,7 +110,6 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --replay_after_n_epoch 0 \
    --kl_ratio 1 \
    --attn_temperature 1 \
-   --trans_hidden_dim 100 \
    --train_key_weight_top 1 \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
@@ -124,7 +120,7 @@ rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0
 
 
 
-python3 --num_gpus=1 src/run_t5_new.py \
+python3 src/run_t5_new.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
@@ -136,14 +132,13 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --gen_data_dir generated_data/lora_gen_superni_llama \
    --task_config_dir configs/CodeTask/CodeSearchNet \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 32 \
    --per_device_eval_batch_size 32 \
-   --gradient_accumulation_steps 2 \
+   --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
    --num_train_epochs 5 \
    --bf16 \
-   --deepspeed configs/ds_configs/stage2.config \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
    --distances_way L2 \
@@ -170,7 +165,6 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --replay_after_n_epoch 0 \
    --kl_ratio 1 \
    --attn_temperature 1 \
-   --trans_hidden_dim 100 \
    --train_key_weight_top 1 \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
@@ -181,7 +175,7 @@ rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0
 
 
 
-python3 --num_gpus=1 src/run_t5_new.py \
+python3 src/run_t5_new.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
@@ -193,14 +187,13 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --gen_data_dir generated_data/lora_gen_superni_llama \
    --task_config_dir configs/CodeTask/BFP \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 32 \
    --per_device_eval_batch_size 32 \
-   --gradient_accumulation_steps 2 \
+   --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
    --num_train_epochs 5 \
    --bf16 \
-   --deepspeed configs/ds_configs/stage2.config \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
    --distances_way L2 \
@@ -227,7 +220,6 @@ python3 --num_gpus=1 src/run_t5_new.py \
    --replay_after_n_epoch 0 \
    --kl_ratio 1 \
    --attn_temperature 1 \
-   --trans_hidden_dim 100 \
    --train_key_weight_top 1 \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
@@ -241,7 +233,7 @@ rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0
 
 
 
-python3 --num_gpus=1 src/run_t5_new_eval.py \
+python3 src/run_t5_new_eval.py \
    --do_predict \
    --predict_with_generate \
    --model_name_or_path Salesforce/codet5p-220m \
@@ -252,14 +244,13 @@ python3 --num_gpus=1 src/run_t5_new_eval.py \
    --gen_data_dir generated_data/lora_gen_superni_llama \
    --task_config_dir configs/CodeTask/task875_emotion_classification \
    --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/15-task875_emotion_classification \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 32 \
    --per_device_eval_batch_size 8 \
-   --gradient_accumulation_steps 2 \
+   --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
    --num_train_epochs 5 \
    --bf16 \
-   --deepspeed configs/ds_configs/stage2.config \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
    --distances_way L2 \
@@ -286,7 +277,6 @@ python3 --num_gpus=1 src/run_t5_new_eval.py \
    --replay_after_n_epoch 0 \
    --kl_ratio 1 \
    --attn_temperature 1 \
-   --trans_hidden_dim 100 \
    --train_key_weight_top 1 \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
