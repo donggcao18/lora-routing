@@ -8,11 +8,11 @@
 #SBATCH --mem 128G 
 #SBATCH --gres=gpu:a100-sxm4-80gb:1
 
-fuser -k /dev/nvidia*
+# fuser -k /dev/nvidia*
 
-export CUDA_DEVICE_ORDER="PCI_BUS_ID"
-export TORCH_DISTRIBUTED_DEBUG=DETAIL
-port=$(shuf -i25000-30000 -n1)  
+# export CUDA_DEVICE_ORDER="PCI_BUS_ID"
+# export TORCH_DISTRIBUTED_DEBUG=DETAIL
+# port=$(shuf -i25000-30000 -n1)  
 
 python3 src/run_t5_new.py \
    --do_train \
@@ -28,7 +28,7 @@ python3 src/run_t5_new.py \
    --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
-   --num_train_epochs 5 \
+   --num_train_epochs 3 \
    --bf16 \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
@@ -60,7 +60,8 @@ python3 src/run_t5_new.py \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
    --test_key_weight_top_p -1.0 \
-   --successor N
+   --successor N \
+   --max_train_sample 20000
 
 rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/1-CONCODE/checkpoint*
 
@@ -114,7 +115,8 @@ python3 src/run_t5_new.py \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
    --test_key_weight_top_p -1.0 \
-   --successor N
+   --successor N \
+   --max_train_sample 10000
 
 rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/2-CodeTrans/checkpoint*
 
@@ -137,7 +139,7 @@ python3 src/run_t5_new.py \
    --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
-   --num_train_epochs 5 \
+   --num_train_epochs 3 \
    --bf16 \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
@@ -169,7 +171,8 @@ python3 src/run_t5_new.py \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
    --test_key_weight_top_p -1.0 \
-   --successor N
+   --successor N \
+   --max_train_sample 20000
 
 rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/3-CodeSearchNet/checkpoint*
 
@@ -192,7 +195,7 @@ python3 src/run_t5_new.py \
    --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
-   --num_train_epochs 5 \
+   --num_train_epochs 3 \
    --bf16 \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
@@ -224,7 +227,8 @@ python3 src/run_t5_new.py \
    --test_key_weight_top 1 \
    --train_key_weight_top_p -1.0 \
    --test_key_weight_top_p -1.0 \
-   --successor N
+   --successor N \
+   --max_train_sample 20000
 
 rm -rf logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP/checkpoint*
 
@@ -242,14 +246,14 @@ python3 src/run_t5_new_eval.py \
    --data_dir CODETASK_Benchmark \
    --task_order CONCODE,CodeTrans,CodeSearchNet,BFP \
    --gen_data_dir generated_data/lora_gen_superni_llama \
-   --task_config_dir configs/CodeTask/task875_emotion_classification \
-   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/15-task875_emotion_classification \
+   --task_config_dir configs/CodeTask/BFP \
+   --output_dir logs_and_outputs/test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0/outputs/4-BFP \
    --per_device_train_batch_size 32 \
    --per_device_eval_batch_size 8 \
    --gradient_accumulation_steps 1 \
    --learning_rate 3e-04 \
    --attn_lr 0.0 \
-   --num_train_epochs 5 \
+   --num_train_epochs 3 \
    --bf16 \
    --run_name test_t5_codetask_train_top_1_test_top_1_train_top_p_-1.0_test_top_p_-1.0 \
    --distances_temperature 1.0 \
