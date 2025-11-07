@@ -30,119 +30,95 @@ GPT2TOKENIZER = os.path.join(CURRENT_DIR, "../data/gpt2tokenizer")
 # xlingual_tokenizer = GPTTokenizer()
 
 
-import math
-import re
-import sys
-import xml.sax.saxutils
+class BleuScorer:
+    """BLEU score computation class."""
+    
+    def _get_ngrams(self, segment, max_order):
+        """Extracts all n-grams up to a given max_order from a token list."""
+        ngram_counts = collections.Counter()
+        for order in range(1, max_order + 1):
+            for i in range(0, len(segment) - order + 1):
+                ngram = tuple(segment[i:i+order])
+                ngram_counts[ngram] += 1
+        return ngram_counts
 
-class SmoothBLEU:
-    def __init__(self, n=4, smooth=True, preserve_case=False, eff_ref_len="shortest"):
-        self.n = n
-        self.smooth = smooth
-        self.preserve_case = preserve_case
-        self.eff_ref_len = eff_ref_len
-        self.nonorm = False
+    def compute_bleu(self, reference_corpus, translation_corpus, max_order=1, smooth=False):
+        """
+        Computes BLEU score of translated segments against one or more references.
 
-        self.normalize1 = [
-            (re.compile('<skipped>'), ''), 
-            (re.compile(r'-\n'), ''), 
-            (re.compile(r'\n'), ' ')
-        ]
-        self.normalize2 = [
-            (re.compile(r'([\{-\~\[-\` -\&\(-\+\:-\@\/])'), r' \1 '),
-            (re.compile(r'([^0-9])([\.,])'), r'\1 \2 '),
-            (re.compile(r'([\.,])([^0-9])'), r' \1 \2'),
-            (re.compile(r'([0-9])(-)'), r'\1 \2 ')
-        ]
+        reference_corpus: list of lists of references for each translation.
+                        Each reference should be a tokenized list.
+        translation_corpus: list of tokenized translations to score.
+        """
+        # Handle empty corpora
+        if not reference_corpus or not translation_corpus:
+            return 0.0
+        
+        matches_by_order = [0] * max_order
+        possible_matches_by_order = [0] * max_order
+        reference_length = 0
+        translation_length = 0
 
-    # ------------------------------
-    # Core functions
-    # ------------------------------
-    def normalize(self, s):
-        """Normalize and tokenize a sentence (like NIST mteval)."""
-        if self.nonorm:
-            return s.split()
-        if isinstance(s, list):
-            s = " ".join(s)
-        for (pattern, replace) in self.normalize1:
-            s = re.sub(pattern, replace, s)
-        s = xml.sax.saxutils.unescape(s, {'&quot;': '"'})
-        s = f" {s} "
-        if not self.preserve_case:
-            s = s.lower()
-        for (pattern, replace) in self.normalize2:
-            s = re.sub(pattern, replace, s)
-        return s.split()
+        for (references, translation) in zip(reference_corpus, translation_corpus):
+            # Handle empty references or translations
+            if not references or not translation or not any(references):
+                continue
+                
+            # references is a list of token lists; translation is a single token list
+            reference_length += min(len(r) for r in references if r)
+            translation_length += len(translation)
 
-    def count_ngrams(self, words):
-        counts = {}
-        for k in range(1, self.n + 1):
-            for i in range(len(words) - k + 1):
-                ngram = tuple(words[i:i + k])
-                counts[ngram] = counts.get(ngram, 0) + 1
-        return counts
+            merged_ref_ngram_counts = collections.Counter()
+            for reference in references:
+                merged_ref_ngram_counts |= self._get_ngrams(reference, max_order)
 
-    def cook_refs(self, refs):
-        refs = [self.normalize(ref) for ref in refs]
-        maxcounts = {}
-        for ref in refs:
-            counts = self.count_ngrams(ref)
-            for ngram, count in counts.items():
-                maxcounts[ngram] = max(maxcounts.get(ngram, 0), count)
-        return [len(ref) for ref in refs], maxcounts
+            translation_ngram_counts = self._get_ngrams(translation, max_order)
+            overlap = translation_ngram_counts & merged_ref_ngram_counts
 
-    def cook_test(self, test, cooked_refs):
-        reflens, refmaxcounts = cooked_refs
-        test = self.normalize(test)
-        result = {"testlen": len(test), "reflen": 0, "guess": [0]*self.n, "correct": [0]*self.n}
+            for ngram in overlap:
+                matches_by_order[len(ngram)-1] += overlap[ngram]
 
-        # effective reference length
-        if self.eff_ref_len == "shortest":
-            result["reflen"] = min(reflens)
-        elif self.eff_ref_len == "average":
-            result["reflen"] = float(sum(reflens)) / len(reflens)
-        elif self.eff_ref_len == "closest":
-            result["reflen"] = min(reflens, key=lambda r: abs(r - len(test)))
+            for order in range(1, max_order+1):
+                possible_matches = len(translation) - order + 1
+                if possible_matches > 0:
+                    possible_matches_by_order[order-1] += possible_matches
 
-        result["guess"] = [max(len(test) - k + 1, 0) for k in range(1, self.n + 1)]
+        precisions = [0] * max_order
+        for i in range(0, max_order):
+            if smooth:
+                precisions[i] = ((matches_by_order[i] + 1.) /
+                                (possible_matches_by_order[i] + 1.))
+            else:
+                if possible_matches_by_order[i] > 0:
+                    precisions[i] = (float(matches_by_order[i]) /
+                                    possible_matches_by_order[i])
+                else:
+                    precisions[i] = 0.0
 
-        counts = self.count_ngrams(test)
-        for ngram, count in counts.items():
-            result["correct"][len(ngram) - 1] += min(refmaxcounts.get(ngram, 0), count)
+        if min(precisions) > 0:
+            p_log_sum = sum((1. / max_order) * math.log(p) for p in precisions)
+            geo_mean = math.exp(p_log_sum)
+        else:
+            geo_mean = 0
 
-        return result
+        # Handle zero reference length
+        if reference_length == 0:
+            return 0.0
 
-    def score_cooked(self, allcomps):
-        total = {'testlen': 0, 'reflen': 0, 'guess': [0]*self.n, 'correct': [0]*self.n}
-        for comps in allcomps:
-            total['testlen'] += comps['testlen']
-            total['reflen'] += comps['reflen']
-            for i in range(self.n):
-                total['guess'][i] += comps['guess'][i]
-                total['correct'][i] += comps['correct'][i]
+        ratio = float(translation_length) / reference_length
+        if ratio > 1.0:
+            bp = 1.0
+        else:
+            if reference_length == 0:
+                bp = 0.0
+            else:
+                bp = math.exp(1 - 1. / ratio)
 
-        logbleu = 0.0
-        for k in range(self.n):
-            correct = total['correct'][k]
-            guess = total['guess'][k]
-            add_smooth = 1 if self.smooth and k > 0 else 0
-            logbleu += math.log(correct + add_smooth + sys.float_info.min) - math.log(guess + add_smooth + sys.float_info.min)
-        logbleu /= float(self.n)
-
-        brevity_penalty = min(0, 1 - float(total['reflen'] + 1) / (total['testlen'] + 1))
-        bleu_score = math.exp(logbleu + brevity_penalty)
-        return bleu_score
-
-    # ------------------------------
-    # Public interface
-    # ------------------------------
-    def compute_bleu(self, refs, candidate):
-        cooked_refs = self.cook_refs(refs)
-        test = self.cook_test(candidate, cooked_refs)
-        return self.score_cooked([test])
+        bleu = geo_mean * bp
+        return bleu  # typically a float in [0..1]
 
 
-bleu_scorer = SmoothBLEU()
+bleu_scorer = BleuScorer()
 
 
 # adapted the flowing from Squad v1.1 evaluation, without removing the articles.
@@ -198,17 +174,18 @@ def bleu_score(prediction, ground_truth, xlingual=False):
         # Simple whitespace tokenization for default case
         pred_tokens = prediction.split()
         ref_tokens = ground_truth.split()
+        print("Pred tokens:", pred_tokens)
+        print("Ref tokens:", ref_tokens)
     # Handle empty token lists
     if not pred_tokens or not ref_tokens:
         print("Empty tokens after tokenization.")
         return 0.0
     
     # BLEU expects reference_corpus as list of lists and translation_corpus as list
-    # reference_corpus = [[ref_tokens]]  # Single reference wrapped in list
-    # translation_corpus = [pred_tokens]
+    reference_corpus = [[ref_tokens]]  # Single reference wrapped in list
+    translation_corpus = [pred_tokens]
     
-    # return bleu_scorer.compute_bleu(reference_corpus, translation_corpus)
-    return bleu_scorer.compute_bleu([ref_tokens], pred_tokens)
+    return bleu_scorer.compute_bleu(reference_corpus, translation_corpus)
 
 
 def metric_max_over_ground_truths(metric_fn, prediction, ground_truths, xlingual=False):
