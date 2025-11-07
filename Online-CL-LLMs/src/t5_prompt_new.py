@@ -826,6 +826,7 @@ class T5Attention(nn.Module):
             hidden_states, self.k, key_value_states, past_key_value[0] if past_key_value is not None else None, key_attention_weights
         )
 
+
         if (self.distribution_v is not None) and (not self.is_decoder) and self.training:
             with torch.no_grad():
                 for each_v,each_ids_w in zip(hidden_states,input_ids):

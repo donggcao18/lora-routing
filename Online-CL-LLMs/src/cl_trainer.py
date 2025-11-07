@@ -487,7 +487,7 @@ class Trainer(Seq2SeqTrainer):
                 "num_beams": 1,
                 "repetition_penalty": 1.0,
                 "decoder_start_token_id": 0,
-                "eos_token_id": 1,
+                "eos_token_id": 2,
                 "pad_token_id": 0,
             }
             gen_kwargs["synced_gpus"] = False
@@ -510,7 +510,7 @@ class Trainer(Seq2SeqTrainer):
                     "num_beams": 1,
                     "repetition_penalty": 1.0,
                     "decoder_start_token_id": 0,
-                    "eos_token_id": 1,
+                    "eos_token_id": 2,
                     "pad_token_id": 0,
                 }
                 
@@ -540,13 +540,12 @@ class Trainer(Seq2SeqTrainer):
                     input_ids_wo_label=inputs["input_ids_wo_label"],
                     generation_config=generation_config,
                 )
-            
             else:
                 generated_tokens = self.model.generate(
                     input_ids=generation_inputs,
                     generation_config=generation_config,
                 )
-
+                
         bs, source_len = inputs['input_ids'].shape
         # in case the batch is shorter than max length, the output should be padded
         if check_model(self.model.config._name_or_path, SUPPORTED_DECODER_MODELS):
